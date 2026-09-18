@@ -24,6 +24,21 @@ The application is split into a decoupled frontend and backend:
 2. **Backend (Serverless AI Proxy):** API Gateway routes chat requests to a Python Lambda function, which securely injects the Google AI Studio API key and communicates with the Gemini model.
 3. **Backend (Visitor Counter):** API Gateway triggers a separate Lambda function that performs an `UpdateExpression` on a DynamoDB table to increment and retrieve the visitor count.
 
+```mermaid
+flowchart LR
+    User([User / Browser]) --> Amplify[AWS Amplify<br>React Frontend]
+    Amplify --> APIGW[Amazon API Gateway<br>HTTP API]
+    
+    subgraph AWS Backend
+        APIGW -->|/views| CounterLambda[Lambda: Visitor Counter<br>Python 3.12]
+        APIGW -->|/chat| AILambda[Lambda: AI Proxy<br>Python 3.12]
+        CounterLambda --> DDB[(DynamoDB<br>Table)]
+    end
+    
+    subgraph Google Cloud
+        AILambda -->|Secure API Key| Gemini[Google AI Studio<br>Gemini API]
+    end
+
 ## 🛠️ Technology Stack
 
 * **Frontend:** React, Vite, Tailwind CSS, HeroUI, Framer Motion
